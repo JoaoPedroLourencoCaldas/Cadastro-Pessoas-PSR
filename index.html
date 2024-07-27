@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="pagina_cadastro.css">
+    <title>Cadastro de Pessoas</title>
+    <script>
+        async function criarPessoa() {
+            const nome = document.getElementById('nome').value;
+            const idade = document.getElementById('idade').value;
+            const endereco = document.getElementById('endereco').value;
+            const telefone = document.getElementById('telefone').value;
+            const email = document.getElementById('email').value;
+            
+            
+        try {
+            const response = await fetch('/pessoas', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nome, email, telefone })
+            });
+            
+            if (!response.ok) {
+            throw new Error('Erro ao criar pessoa');
+            }
+            
+            const data = await response.json();
+            console.log('Pessoa criada:', data);
+            listarPessoas(); // chama a função para atualizar a lista
+        } catch (error) {
+            console.error('Erro:', error);
+        }
+        }
+
+        async function listarPessoas() {
+            try {
+                const response = await fetch('/pessoas');
+                
+                if (!response.ok) {
+                    throw new Error('Erro ao listar pessoas');
+                }
+                
+                const pessoas = await response.json();
+                const list = document.getElementById('pessoas-list');
+                list.innerHTML = '';
+                
+                pessoas.forEach(pessoa => {
+                    const item = document.createElement('li');
+                    item.textContent = `${pessoa.nome} - ${pessoa.endereco} - ${pessoa.email}`;
+                    list.appendChild(item);
+                });
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+        }
+
+        window.onload = listarPessoas;
+    </script>
+</head>
+<body>
+    <h1>Cadastro de Pessoas</h1>
+    <form onsubmit="event.preventDefault(); criarPessoa();">
+        <label>Nome:
+            <input type="text" id="nome" required>
+        </label><br>
+        <label>Idade:
+            <input type="number" id="idade">
+        </label><br>
+        <label>Endereco:
+            <input type="text" id="endereco">
+        </label><br>
+        <label>Telefone:
+            <input type="text" id="telefone">
+        </label><br>
+        <label>Email:
+            <input type="email" id="email" required>
+        </label><br>
+        <button type="submit">Cadastrar</button>
+    </form>
+    <h2>Lista de Pessoas</h2>
+    <ul id="pessoas-list"></ul>
+</body>
+</html>
